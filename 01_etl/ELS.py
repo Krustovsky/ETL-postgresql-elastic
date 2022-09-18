@@ -4,9 +4,9 @@ import json
 from datetime import datetime
 
 #ELS_PASSWORD = "eGxfFvZhtWmN+aDJGin1"
-#BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent
 # Create the client instance
-#print(BASE_DIR / "http_ca.crt")
+print(BASE_DIR / "http_ca.crt")
 es = Elasticsearch(
     "http://127.0.0.1:9200",
     #ca_certs= BASE_DIR / "http_ca.crt",
@@ -19,6 +19,7 @@ es = Elasticsearch(
 with open(BASE_DIR / 'ELS_scheme.json', 'r') as f:
     request_body = json.load(f)
 print(request_body)
+print(type(request_body))
 #es.indices.delete(index='example_index')
 #print(es.indices.create(index='example_index', **request_body))
 

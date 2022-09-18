@@ -1,24 +1,30 @@
 import transformer
 from movies_pg import PostgresLoader
+import json
+import transformer
+from elasticsearch import Elasticsearch, NotFoundError
 import save_state
 state = save_state.State(save_state.JsonFileStorage)
 
 class Loader:
-    def __init__(self, pg_loader: PostgresLoader, state: save_state.State):
-        self.pg_loader = pg_loader
-        self.state = state
+    def __init__(self, index: str, host: str = "http://127.0.0.1:9200",request_body: dict = {}):
 
-    def update_movies(self):
-        self.state.set_state('movie_time', self.pg_loader.get_db_time())
-        start_time = self.state.get_state('start_time_movie')
-        if not start_time:
-            start_time = self.pg_loader.get_min_time()
-        data = self.pg_loader.extract_movies_upt()
-        return data
+        self.es = Elasticsearch(host)
+        self.index = index
+        #если индекс не создан, то создадим его
+        try:
+            indices_dict = self.es.indices.get(index=self.index)
+        except NotFoundError:
+            self.es.indices.create(index=self.index, **request_body)
 
-    #give objects
-    #funvtion create index instruction with ID
-    #add data to load
-
-data_to_load = {}
-#a = transformer.Movies()
+    def esl_bulk_load(self, data_to_load):
+        data=[]
+        for row in data_to_load:
+            last_saved_item = (row['id'], row['modified'])
+            data.append({"index": {"_index": self.index, "_id": row["id"]}})
+            data.append(transformer.Movies(**row).dict())
+        if data:
+            resp=self.es.bulk(index=self.index, operations=data)
+            return last_saved_item
+        else:
+            return None

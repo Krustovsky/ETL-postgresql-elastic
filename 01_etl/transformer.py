@@ -4,10 +4,10 @@ import uuid
 
 class Movies(BaseModel):
     id: uuid.UUID
-    imdb_rating: float
+    imdb_rating: float = None
     genre: list[str]
     title: str
-    description: str
+    description: str = None
     director: list[str] = None
     actors_names: list[str]
     writers_names: list[str]
