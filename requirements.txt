@@ -4,4 +4,4 @@ python-dotenv==0.20
 pre-commit==2.15.0
 psycopg2-binary==2.9.3
 elasticsearch==8.4.1
-pydantic
+pydantic==v1.10.2
