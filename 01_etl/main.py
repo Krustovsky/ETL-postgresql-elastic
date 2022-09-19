@@ -12,6 +12,7 @@ from psycopg2.extras import DictCursor
 from movies_pg import PostgresLoader
 from pathlib import Path
 import logging
+from backoff import backoff
 
 from dotenv import load_dotenv
 
@@ -20,6 +21,20 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent
 with open(BASE_DIR / 'ELS_scheme.json', 'r') as f:
     request_body = json.load(f)
+
+@backoff()
+def main():
+    dsl = {'dbname': os.environ.get('DB_NAME'),
+           'user': os.environ.get('DB_USER'),
+           'password': os.environ.get('DB_PASSWORD'),
+           'host': os.environ.get('DB_HOST'),
+           'port': os.environ.get('DB_PORT')}
+    state = State(JsonFileStorage())
+    with contextlib.closing(psycopg2.connect(**dsl, cursor_factory=DictCursor)) as pg_conn:
+        extract = PostgresLoader(pg_conn, schema="content")
+        loader = Loader("example_index", request_body=request_body)
+        extract_load_transform(extract, loader, state)
+
 
 def etl_linked_tables(extract: PostgresLoader, loader: Loader, state: State, table: str) -> None:
     while True:
@@ -81,14 +96,5 @@ def extract_load_transform(extract: PostgresLoader, loader: Loader, state: State
 
 if __name__ == '__main__':
     logging.basicConfig(filename='etl.log', level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-    dsl = {'dbname': os.environ.get('DB_NAME'),
-           'user': os.environ.get('DB_USER'),
-           'password': os.environ.get('DB_PASSWORD'),
-           'host': os.environ.get('DB_HOST'),
-           'port': os.environ.get('DB_PORT')}
-    state = State(JsonFileStorage())
-    with contextlib.closing(psycopg2.connect(**dsl, cursor_factory=DictCursor)) as pg_conn:
-        extract = PostgresLoader(pg_conn, schema="content")
-        loader = Loader("example_index", request_body=request_body)
-        extract_load_transform(extract, loader, state)
+    main()
 

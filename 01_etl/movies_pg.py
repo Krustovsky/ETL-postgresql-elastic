@@ -1,7 +1,6 @@
 """Основной модель для запроса данных из таблиц Postgres."""
 import datetime
 import uuid
-
 class PostgresLoader:
     def __init__(self, pg_conn, schema="", limit=100):
         """Создаем объект с коннектом и курсором.
