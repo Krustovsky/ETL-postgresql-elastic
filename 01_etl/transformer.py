@@ -2,7 +2,10 @@
 from pydantic import BaseModel
 import uuid
 
+
 class Movies(BaseModel):
+    """Класс используем для создания объектов из transformer, которые потом в loader передаем."""
+
     id: uuid.UUID
     imdb_rating: float = None
     genre: list[str]

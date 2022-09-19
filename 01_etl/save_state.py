@@ -1,7 +1,7 @@
+"""Модуль хранния состояний процесса ETL"""
 import abc
 import json
 from typing import Any, Optional
-import os
 
 
 class BaseStorage:
@@ -17,16 +17,20 @@ class BaseStorage:
 
 
 class JsonFileStorage(BaseStorage):
+    """Реализует методы класса BaseStorage для хранения состояний в JSON"""
+
     def __init__(self, file_path: Optional[str] = None):
         self.file_path = file_path
 
     def save_state(self, state: dict) -> None:
-        with open(self.file_path if self.file_path else 'state.json', 'w') as f:
+        """Сохранить словарь состояний в файл"""
+        with open(self.file_path if self.file_path else "state.json", "w") as f:
             json.dump(state, f)
 
     def retrieve_state(self) -> dict:
+        """Прочитать словарь состояний из файла"""
         try:
-            with open(self.file_path if self.file_path else 'state.json', 'r') as f:
+            with open(self.file_path if self.file_path else "state.json", "r") as f:
                 return json.load(f)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             return {}
@@ -36,7 +40,6 @@ class State:
     """
     Класс для хранения состояния при работе с данными, чтобы постоянно не перечитывать данные с начала.
     Здесь представлена реализация с сохранением состояния в файл.
-    В целом ничего не мешает поменять это поведение на работу с БД или распределённым хранилищем.
     """
 
     def __init__(self, storage: BaseStorage):
