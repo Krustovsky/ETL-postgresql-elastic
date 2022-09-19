@@ -1,0 +1,6 @@
+.idea/
+*__pycache__/
+*venv/
+01_etl/etl.log
+01_etl/state.json
+
