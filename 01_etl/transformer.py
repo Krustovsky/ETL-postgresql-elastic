@@ -8,8 +8,8 @@ class Movies(BaseModel):
     genre: list[str]
     title: str
     description: str = None
-    director: list[str] = None
+    director: list[str] = []
     actors_names: list[str]
     writers_names: list[str]
-    actors: dict[str, str]
-    writers: dict[str, str]
+    actors: list[dict[str, str]]
+    writers: list[dict[str, str]]

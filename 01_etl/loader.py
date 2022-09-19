@@ -20,7 +20,7 @@ class Loader:
     def esl_bulk_load(self, data_to_load):
         data=[]
         for row in data_to_load:
-            last_saved_item = (row['id'], row['modified'])
+            last_saved_item = (row['modified'])
             data.append({"index": {"_index": self.index, "_id": row["id"]}})
             data.append(transformer.Movies(**row).dict())
         if data:
