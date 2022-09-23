@@ -1,16 +1,18 @@
 "Модуль трансформации данных"
-from pydantic import BaseModel
 import uuid
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class Movies(BaseModel):
     """Класс используем для создания объектов из transformer, которые потом в loader передаем."""
 
     id: uuid.UUID
-    imdb_rating: float = None
+    imdb_rating: Optional[float]
     genre: list[str]
     title: str
-    description: str = None
+    description: Optional[str]
     director: list[str] = []
     actors_names: list[str]
     writers_names: list[str]

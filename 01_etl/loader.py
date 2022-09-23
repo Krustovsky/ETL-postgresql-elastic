@@ -1,8 +1,9 @@
 """Модуль загрузки данных в elasticsearch"""
 import datetime
+import logging
+from typing import Optional
 
 import transformer
-import logging
 from elasticsearch import Elasticsearch, NotFoundError
 
 
@@ -17,13 +18,13 @@ class Loader:
         except NotFoundError:
             self.es.indices.create(index=self.index, **request_body)
 
-    def esl_bulk_load(self, data_to_load) -> datetime:
+    def esl_bulk_load(self, data_to_load) -> Optional[datetime.datetime]:
         """Функций bulk загрузки данных в ETL.
 
         :param data_to_load: генератор данных для загрузки
         :return: datetime.datetime - значение modified последнего загруженного элемента
         """
-        logging.debug("Cтартуем ELS")
+        logging.debug("Starting ELS")
         if not data_to_load:
             return None
         data = []
@@ -34,7 +35,7 @@ class Loader:
         if data:
             resp = self.es.bulk(index=self.index, operations=data)
             if resp['errors']:
-                raise Exception("Ошибка загрузци данных в Elasticsearch")
+                raise Exception("Ошибка загрузки данных в Elasticsearch")
             return last_saved_item
         else:
             return None

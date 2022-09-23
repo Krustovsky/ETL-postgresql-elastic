@@ -1,6 +1,6 @@
 import logging
-from functools import wraps
 import time
+from functools import wraps
 
 
 def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
@@ -21,20 +21,19 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
         def inner(*args, **kwargs):
             timer = start_sleep_time
             state = True
-            while state:
-                try:
-                    logging.debug(f"Внутри backoff - timer is {timer}")
-                    func(*args, **kwargs)
-                    timer = start_sleep_time
-                    state = False
 
-                except Exception as e:
-                    logging.info(f"Cловили {e}")
-                    if timer < border_sleep_time:
+            try:
+                logging.debug(f"Inside backoff - timer is {timer}")
+                return func(*args, **kwargs)
+                timer = start_sleep_time
+
+            except Exception as e:
+                logging.info(f"Cought exeption {e}")
+                if timer < border_sleep_time:
                         time.sleep(start_sleep_time)
                         timer = timer * 2 * factor
-                    else:
-                        time.sleep(border_sleep_time)
+                else:
+                    time.sleep(border_sleep_time)
 
         return inner
 

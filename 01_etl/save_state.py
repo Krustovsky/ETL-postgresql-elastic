@@ -4,7 +4,7 @@ import json
 from typing import Any, Optional
 
 
-class BaseStorage:
+class BaseStorage(abc.ABC):
     @abc.abstractmethod
     def save_state(self, state: dict) -> None:
         """Сохранить состояние в постоянное хранилище"""
@@ -20,17 +20,18 @@ class JsonFileStorage(BaseStorage):
     """Реализует методы класса BaseStorage для хранения состояний в JSON"""
 
     def __init__(self, file_path: Optional[str] = None):
-        self.file_path = file_path
+        self.file_path = file_path if file_path else "state.json"
+
 
     def save_state(self, state: dict) -> None:
         """Сохранить словарь состояний в файл"""
-        with open(self.file_path if self.file_path else "state.json", "w") as f:
+        with open(self.file_path, "w") as f:
             json.dump(state, f)
 
     def retrieve_state(self) -> dict:
         """Прочитать словарь состояний из файла"""
         try:
-            with open(self.file_path if self.file_path else "state.json", "r") as f:
+            with open(self.file_path, "r") as f:
                 return json.load(f)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             return {}
@@ -54,4 +55,4 @@ class State:
 
     def get_state(self, key: str) -> Any:
         """Получить состояние по определённому ключу"""
-        return self.storage.retrieve_state().get(key, None)
+        return self.storage.retrieve_state().get(key)

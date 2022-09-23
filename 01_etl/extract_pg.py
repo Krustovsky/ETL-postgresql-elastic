@@ -1,6 +1,6 @@
 """Основной модель для запроса данных из таблиц Postgres."""
 import datetime
-
+import logging
 
 
 class PostgresLoader:
@@ -34,7 +34,8 @@ class PostgresLoader:
         if time_offset:
             where = f"WHERE fw.modified > '{time_offset}'"
         if id_list:
-            id_list = "'" + "', '".join(str(_) for _ in id_list) + "'"
+            id_list = ', '.join(f"'{id_}'" for id_ in id_list)
+
             if time_offset:
                 where = f"WHERE fw.modified > '{time_offset}' and fw.id in ({id_list})"
             else:
@@ -64,7 +65,7 @@ class PostgresLoader:
             f" ORDER BY fw.modified"
             f" LIMIT {self.limit};"
         )
-        if self.cur.rowcount < 1:
+        if not self.cur.rowcount:
             return None
         else:
             for row in self.cur.fetchall():
@@ -89,7 +90,7 @@ class PostgresLoader:
             f" limit {self.limit}"
         )
 
-        if self.cur.rowcount < 1:
+        if not self.cur.rowcount:
             return None
         else:
             results = []
@@ -114,7 +115,7 @@ class PostgresLoader:
             return None
         if table not in ["person", "genre"]:
             raise Exception(
-                "Не указана теблица или такой таблицы нет в списке: genre, person"
+                "Не указана таблица или такой таблицы нет в списке: genre, person"
             )
 
         ids = "'" + "', '".join(str(_) for _ in ids) + "'"
@@ -139,7 +140,7 @@ class PostgresLoader:
             f" limit {self.limit}"
         )
 
-        if self.cur.rowcount < 1:
+        if not self.cur.rowcount:
             return None
         else:
             results = []
